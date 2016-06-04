@@ -1,0 +1,30 @@
+body {
+  font-family: 'Special Elite', cursive;
+}
+
+.page {
+  height: 55em;
+  margin: 10px auto;
+  width: 75ch;
+  border: solid 1px black;
+  box-shadow: 5px 5px 5px #222;
+}
+
+.title {
+  margin-top: 2em;
+  text-align: center;
+}
+
+.textWrapper {
+  overflow: hidden;
+  width: 60ch;
+  margin: 2em auto;
+  max-height: 40em;
+}
+
+.text {
+  overflow: hidden;
+}
+
+.forgotten {
+}
