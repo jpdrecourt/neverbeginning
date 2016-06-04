@@ -23,19 +23,17 @@ body {
 }
 
 .line {
+  display: inline;
   position: relative;
   overflow: hidden;
-}
-
-.line {
-  display: inline;
 }
 
 #cursor {
   display: inline;
 }
 
-.forgotten {
+.line.forgotten {
+  display: block;
 }
 
 .overwrite {

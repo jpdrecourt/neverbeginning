@@ -61,15 +61,14 @@ function insertLineBreak() {
 // Maybe a random fullscreen effect to distract the viewer?
 function forgetStory() {
   if (lineCount() > 2) {
-    var t = $(".line").not(".forgotten").first();
-    var marginText = "-" + t.css("height");
-    t.addClass("forgotten")
+    $(".line").not(".forgotten").first()
+      .addClass("forgotten")
       .animate({
         "opacity": 0.5
       }, forgettingTime / 2)
       .animate({
           "opacity": 0,
-          "margin-top": marginText
+          "height": 0
         },
         forgettingTime * 5,
         "linear",
@@ -85,7 +84,7 @@ function moveCursorBack() {
     isBackSpace = true;
     appendHtml("<span class='backspace'></span>");
   }
-  $(".backspace:last").css({"margin-left": "-=2ex"})
+  $(".backspace:last").css({"margin-left": "-=1ch"})
 }
 
 // Special key press handler
