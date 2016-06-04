@@ -23,8 +23,22 @@ body {
 }
 
 .line {
+  position: relative;
   overflow: hidden;
 }
 
+.line {
+  display: inline;
+}
+
+#cursor {
+  display: inline;
+}
+
 .forgotten {
+}
+
+.overwrite {
+  position: absolute;
+  right: 0px;
 }

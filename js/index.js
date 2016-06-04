@@ -19,7 +19,8 @@ var
     preload: true,
     autoplay: false,
     loop: false
-  });
+  }),
+  isBackSpace = false;
 
 function appendHtml(htmlText) {
   var $t = $(".line:last > .text");
@@ -44,16 +45,14 @@ function checkForLineBreak() {
 }
 
 // Insert a line break to know where to delete the line
+// TODO: Manage backspace
 function insertLineBreak() {
   crSound.stop().play();
-  var $l = $('.line:last'),
-      $t = $('.line:last > .text'),
-      c = $('#cursor')[0].outerHTML,
-      s = $t.html().lastIndexOf(" ");
+  var $t = $('.line:last > .text'),
+      s = $t.html().lastIndexOf(" "),
+      newLineText = $t.html().slice(s + 1); // Keep it before updating $t
   $t.html($t.html().slice(0, s));
-  $l.html($t);
-  $('.textWrapper').append("<div class='line'><span class='text'>" + $t.html().slice(s + 1) + "</span>" + c + "</div>");
-  //  t.html(t.slice(0, s) + breakMarker + t.slice(s + 1));
+  $cursor.before("<div></div><div class='line'><span class='text'>" + newLineText + "</span></div>");
 }
 
 // Refine the disappearance
@@ -81,21 +80,33 @@ function forgetStory() {
   }
 }
 
+function moveCursorBack() {
+  if (!isBackSpace) {
+    isBackSpace = true;
+    appendHtml("<span class='backspace'></span>");
+  }
+  $(".backspace:last").css({"margin-left": "-=2ex"})
+}
+
 // Special key press handler
 $(document).keydown(function(event) {
+  if (event.which != 8) {
+    isBackSpace = false;
+  }
   switch (event.which) {
-    case 8:
-      // Prevent using backspace
+    case 8: // Backspace
       event.preventDefault();
+      spaceSound.stop().play();
+      moveCursorBack();
       break;
-    case 9:
-      // Capture tab key and adds 4 spaces
+    case 9: // Tab key
+      // Adds 4 spaces
       event.preventDefault();
       spaceSound.stop().play();
       appendHtml(" &nbsp;&nbsp; ");
       break;
-    case 13:
-      // Add new line with enter
+    case 13: // New line
+      // Add new line
       event.preventDefault();
       if ($(".line:last > .text").text().length == 0) {
         // Makes sure an empty line appears on screen.
@@ -105,7 +116,7 @@ $(document).keydown(function(event) {
       }
       insertLineBreak();
       break;
-    case 32:
+    case 32: // Space
       event.preventDefault();
       spaceSound.stop().play();
       appendHtml(" ");
