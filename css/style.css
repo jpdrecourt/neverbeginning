@@ -3,6 +3,7 @@ body {
 }
 
 .page {
+  overflow: hidden;
   height: 55em;
   margin: 10px auto;
   width: 75ch;
@@ -16,15 +17,29 @@ body {
 }
 
 .textWrapper {
-  overflow: hidden;
+/*  overflow: hidden; */
   width: 60ch;
   margin: 2em auto;
   max-height: 40em;
 }
 
-.text {
-  overflow: hidden;
+.line {
+  display: inline;
+  position: relative;
+  white-space: nowrap;
 }
 
-.forgotten {
+
+
+#cursor {
+  display: inline;
+}
+
+.line.forgotten {
+  display: block;
+}
+
+.overwrite {
+  position: absolute;
+  right: 0px;
 }
