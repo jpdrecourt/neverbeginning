@@ -1,3 +1,5 @@
+'use strict';
+
 var
   $cursor = $("#cursor"),
   forgettingTime = 8000,
@@ -36,23 +38,27 @@ function lineCount() {
   return $("div.line").not(".forgotten").length;
 }
 
-// Insert a line break if necessary
-function checkForLineBreak() {
-  var $l = $(".line:last");
-  if ($l.css("height") > $l.css("line-height")) {
-    insertLineBreak();
+// LF/CR
+function lfcr() {
+  if ($(".text:last").html().length === 0) {
+    appendHtml("&nbsp;");
   }
+  $cursor.before("<div></div><div class='line'><span class='text'></span></div>");
 }
 
-// Insert a line break to know where to delete the line
-// TODO: Manage backspace
-function insertLineBreak() {
-  crSound.stop().play();
-  var $t = $('.line:last > .text'),
-      s = $t.html().lastIndexOf(" "),
-      newLineText = $t.html().slice(s + 1); // Keep it before updating $t
-  $t.html($t.html().slice(0, s));
-  $cursor.before("<div></div><div class='line'><span class='text'>" + newLineText + "</span></div>");
+// Makes sure the cursor (and the typing) remains within the margin of the document
+// TODO Create bell sounds.
+function manageMargin() {
+  var leftPosition = $("#cursor").offset().left - $(".textWrapper").offset().left;
+  var rightPosition = $(".textWrapper").width() - leftPosition;
+  if (leftPosition < 0) {
+    // It's necessarily because of a backspace
+    $(".backspace:last").css({"margin-left": "+=" + (-leftPosition) + "px"});
+  } else if (rightPosition < 0) {
+    moveCursorBack(-rightPosition + "px"); // Back inside the .textWrapper
+    moveCursorBack(); // One more step for next character
+    manageMargin();
+  }
 }
 
 // Refine the disappearance
@@ -80,11 +86,15 @@ function forgetStory() {
 }
 
 function moveCursorBack() {
+  var w = "1ch";
+  if (arguments.length > 0) {
+    w = arguments[1];
+  }
   if (!isBackSpace) {
     isBackSpace = true;
     appendHtml("<span class='backspace'></span>");
   }
-  $(".backspace:last").css({"margin-left": "-=1ch"})
+  $(".backspace:last").css({"margin-left": "-=" + w})
 }
 
 // Special key press handler
@@ -97,28 +107,26 @@ $(document).keydown(function(event) {
       event.preventDefault();
       spaceSound.stop().play();
       moveCursorBack();
+      manageMargin();
       break;
     case 9: // Tab key
       // Adds 4 spaces
       event.preventDefault();
       spaceSound.stop().play();
-      appendHtml(" &nbsp;&nbsp; ");
+      appendHtml("&nbsp;&nbsp;&nbsp;&nbsp;");
+      manageMargin();
       break;
     case 13: // New line
       // Add new line
       event.preventDefault();
-      if ($(".line:last > .text").text().length == 0) {
-        // Makes sure an empty line appears on screen.
-        appendHtml("&nbsp; ");
-      } else {
-        appendHtml(" ");
-      }
-      insertLineBreak();
+      crSound.stop().play();
+      lfcr();
       break;
     case 32: // Space
       event.preventDefault();
       spaceSound.stop().play();
-      appendHtml(" ");
+      appendHtml("&nbsp;");
+      manageMargin();
     default:
       // Nothing special happening but the sound
   }
@@ -129,7 +137,7 @@ $(window).keypress(function(event) {
   var character = String.fromCharCode(event.charCode);
   letterSound.stop().play();
   appendHtml(character);
-  checkForLineBreak();
+  manageMargin();
   forgetStory();
 });
 
