@@ -22,7 +22,14 @@ var
     autoplay: false,
     loop: false
   }),
-  isBackSpace = false;
+  bellSound = new buzz.sound("media/bell", {
+    formats: ["ogg", "mp3"],
+    preload: true,
+    autoplay: false,
+    loop: false
+  }),
+  isBackSpace = false,
+  isWarned = false; // Warning that we're reaching the end of the line
 
 function appendHtml(htmlText) {
   var $t = $(".line:last > .text");
@@ -44,6 +51,7 @@ function lfcr() {
     appendHtml("&nbsp;");
   }
   $cursor.before("<div></div><div class='line'><span class='text'></span></div>");
+  isWarned = false;
 }
 
 // Makes sure the cursor (and the typing) remains within the margin of the document
@@ -51,13 +59,23 @@ function lfcr() {
 function manageMargin() {
   var leftPosition = $("#cursor").offset().left - $(".textWrapper").offset().left;
   var rightPosition = $(".textWrapper").width() - leftPosition;
+  // Hard margins
   if (leftPosition < 0) {
     // It's necessarily because of a backspace
+    bellSound.stop().play();
     $(".backspace:last").css({"margin-left": "+=" + (-leftPosition) + "px"});
   } else if (rightPosition < 0) {
+    bellSound.stop().play();
     moveCursorBack(-rightPosition + "px"); // Back inside the .textWrapper
     moveCursorBack(); // One more step for next character
     manageMargin();
+  }
+  // Warning
+  console.log(rightPosition + ", " + $(".textWrapper").width());
+  if (!isWarned && rightPosition < 0.1 * $(".textWrapper").width()) {
+    bellSound.play();
+    console.log("WARNING!!!");
+    isWarned = true;
   }
 }
 
